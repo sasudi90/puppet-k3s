@@ -1,0 +1,53 @@
+<%- |
+  Enum['server', 'agent'] $mode,
+  Optional[Sensitive[String[1]]] $token,
+  Optional[String[1]] $server,
+  Boolean $cluster_init,
+  Optional[String[1]] $write_kubeconfig_mode,
+  Optional[String[1]] $node_name,
+  Array[String[1]] $node_labels,
+  Array[String[1]] $node_taints,
+  Array[String[1]] $disable,
+  Optional[String[1]] $flannel_backend,
+  Boolean $selinux,
+| -%>
+# Managed by Puppet. Local changes will be overwritten.
+<% if $token { -%>
+token: <%= $token.unwrap %>
+<% } -%>
+<% if $server { -%>
+server: <%= $server %>
+<% } -%>
+<% if $mode == 'server' and $cluster_init { -%>
+cluster-init: true
+<% } -%>
+<% if $write_kubeconfig_mode and $mode == 'server' { -%>
+write-kubeconfig-mode: "<%= $write_kubeconfig_mode %>"
+<% } -%>
+<% if $node_name { -%>
+node-name: <%= $node_name %>
+<% } -%>
+<% if !empty($node_labels) { -%>
+node-label:
+<% $node_labels.each |String[1] $label| { -%>
+  - <%= $label %>
+<% } -%>
+<% } -%>
+<% if !empty($node_taints) { -%>
+node-taint:
+<% $node_taints.each |String[1] $taint| { -%>
+  - <%= $taint %>
+<% } -%>
+<% } -%>
+<% if !empty($disable) and $mode == 'server' { -%>
+disable:
+<% $disable.each |String[1] $component| { -%>
+  - <%= $component %>
+<% } -%>
+<% } -%>
+<% if $flannel_backend and $mode == 'server' { -%>
+flannel-backend: <%= $flannel_backend %>
+<% } -%>
+<% if $selinux and $mode == 'server' { -%>
+selinux: true
+<% } -%>
